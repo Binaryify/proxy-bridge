@@ -367,5 +367,13 @@
   "errPort": "Missing port, or not within 1–65535; the address should be host:port",
   "@errPort": {
     "description": "Address error."
+  },
+  "menuLanguage": "Language",
+  "@menuLanguage": {
+    "description": "Submenu choosing the app's language."
+  },
+  "languageSystem": "Follow System",
+  "@languageSystem": {
+    "description": "Item following the system's language."
   }
 }

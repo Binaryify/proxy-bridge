@@ -24,12 +24,27 @@ type fakeSystem struct {
 	install    bool          // the service is missing: StartTUN installs it
 	release    chan struct{} // when set, the install waits for it, as for the password
 	installed  bool
+	language   *string // the last SetLanguage, if any
 	uninstalls int
 }
 
 func (f *fakeSystem) Apps() []apps.App { return f.apps }
 
 func (f *fakeSystem) CheckForUpdates() {}
+
+func (f *fakeSystem) Languages() []string { return []string{"en", "zh-Hans"} }
+
+// SetLanguage shows the language as the app would, through the tests'
+// locale.
+func (f *fakeSystem) SetLanguage(tag string) {
+	f.mu.Lock()
+	f.language = &tag
+	f.mu.Unlock()
+	if tag == "" {
+		tag = "zh-Hans" // the tests' system
+	}
+	testLocale.Store(tag)
+}
 
 func (f *fakeSystem) ServiceInstalled() bool {
 	f.mu.Lock()

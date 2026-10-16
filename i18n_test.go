@@ -77,3 +77,31 @@ func TestCatalogs(t *testing.T) {
 		t.Errorf("the catalogs differ:\nen      %q\nzh-Hans %q", en, zh)
 	}
 }
+
+// The … menu chooses the language, which shows at once and is kept.
+func TestChooseLanguage(t *testing.T) {
+	t.Cleanup(func() { testLocale.Store("zh-Hans") })
+	f := newFixture(t)
+	f.click("更多")
+	if err := f.tt.ChooseMenuItem("语言", "English"); err != nil {
+		t.Fatalf("%v; menu %v", err, f.tt.Menu())
+	}
+	f.frames()
+	f.wantText("Upstream Proxy")
+	if f.a.s.Language != "en" || f.sys.language == nil || *f.sys.language != "en" {
+		t.Errorf("language %q", f.a.s.Language)
+	}
+	if b := newApp(f.dir, f.sys, nil); b.s.Language != "en" {
+		t.Error("the choice was not saved")
+	}
+
+	f.click("More")
+	if err := f.tt.ChooseMenuItem("Language", "Follow System"); err != nil {
+		t.Fatalf("%v; menu %v", err, f.tt.Menu())
+	}
+	f.frames()
+	f.wantText("上游代理")
+	if f.a.s.Language != "" {
+		t.Errorf("language %q, want the system's", f.a.s.Language)
+	}
+}

@@ -76,5 +76,7 @@
   "errAddressFormat": "地址格式不对，应为 主机:端口",
   "errScheme": "不支持 {scheme}，只支持 http、https、socks5",
   "errNoHost": "缺少主机，应为 主机:端口",
-  "errPort": "缺少端口或端口不在 1–65535，应为 主机:端口"
+  "errPort": "缺少端口或端口不在 1–65535，应为 主机:端口",
+  "menuLanguage": "语言",
+  "languageSystem": "跟随系统"
 }

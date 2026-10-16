@@ -1,7 +1,7 @@
 {
   "name": "Proxy Bridge",
   "identifier": "com.binaryify.proxybridge",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "out": "build",
   "updates": {
     "publicKey": "dnBkUeDCMRgHo4jAog0XSafIUrUNLEaw0btcfrpFQZA=",

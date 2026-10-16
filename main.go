@@ -107,6 +107,8 @@ func (sh *shell) ready() {
 		defer sh.tray.SetMenu(nil)
 		sh.tray.PopUpMenu()
 	})
+	// The icon's tip says the language chosen; the panel draws anew itself.
+	mygo.App.OnLocaleChanged(func(string) { sh.tray.SetToolTip(sh.toolTip()) })
 	// Launching the app again (Finder, Spotlight) opens its panel.
 	mygo.App.OnSecondInstance(func([]string, string) { sh.open() })
 	mygo.App.OnWillQuit(func(*mygo.QuitEvent) {
@@ -213,3 +215,7 @@ func (desktop) ServiceInstalled() bool { return tun.Installed() }
 func (desktop) UninstallService() error { return tun.Uninstall() }
 
 func (desktop) CheckForUpdates() { updater.CheckForUpdates() }
+
+func (desktop) Languages() []string { return mygo.App.Languages() }
+
+func (desktop) SetLanguage(tag string) { mygo.App.SetLocale(tag) }

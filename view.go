@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/egoist/mygo"
+	"github.com/egoist/mygo/i18n"
 	"github.com/egoist/mygo/ui"
 
 	"proxybridge/internal/upstream"
@@ -102,6 +103,18 @@ func (p *panel) header(c *ui.Context) {
 			if m.Item(locales.MenuReloadApps()).Chosen() {
 				a.loadApps()
 			}
+			m.Submenu(locales.MenuLanguage(), func(m *ui.Menu) {
+				if m.Item(locales.LanguageSystem()).Checked(a.s.Language == "").Chosen() {
+					a.setLanguage("")
+				}
+				m.Separator()
+				for _, tag := range a.sys.Languages() {
+					// Each language named in itself, as "English", "简体中文".
+					if m.Item(i18n.Autonym(tag)).Checked(a.s.Language == tag).Chosen() {
+						a.setLanguage(tag)
+					}
+				}
+			})
 			if a.sys.ServiceInstalled() {
 				// While on, the TUN needs it.
 				if m.Item(locales.MenuUninstallService()).Disabled(a.on() || a.busy).Chosen() {

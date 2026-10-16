@@ -1113,3 +1113,31 @@ func ErrPort() string { return In(i18n.Locale()).ErrPort() }
 func (msgs Messages) ErrPort() string {
 	return Catalog.Format(msgs.locale, "errPort", nil)
 }
+
+// MenuLanguage says "Language"
+// in the language the app shows.
+//
+// Submenu choosing the app's language.
+func MenuLanguage() string { return In(i18n.Locale()).MenuLanguage() }
+
+// MenuLanguage says "Language"
+// in the language of msgs.
+//
+// Submenu choosing the app's language.
+func (msgs Messages) MenuLanguage() string {
+	return Catalog.Format(msgs.locale, "menuLanguage", nil)
+}
+
+// LanguageSystem says "Follow System"
+// in the language the app shows.
+//
+// Item following the system's language.
+func LanguageSystem() string { return In(i18n.Locale()).LanguageSystem() }
+
+// LanguageSystem says "Follow System"
+// in the language of msgs.
+//
+// Item following the system's language.
+func (msgs Messages) LanguageSystem() string {
+	return Catalog.Format(msgs.locale, "languageSystem", nil)
+}

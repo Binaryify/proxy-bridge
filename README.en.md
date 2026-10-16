@@ -32,7 +32,7 @@ Click the menu bar icon to open the panel (it opens once at launch); right-click
 
 The TUN keeps working with the panel closed; quitting from the right-click menu or the panel's … turns it off. To remove the background service, choose Uninstall Background Service… in the … menu.
 
-The app speaks English and Simplified Chinese, following the system's language.
+The app speaks English and Simplified Chinese: it follows the system's language, or the one chosen in the panel's … › Language.
 
 ## How it works
 

@@ -25,6 +25,9 @@ type settings struct {
 	Apps    []string `json:"apps"`    // the bundles modeApps sends through the proxy
 	Tab     int      `json:"tab"`     // the panel's tab
 	Private bool     `json:"private"` // private addresses through the proxy too
+	// Language is the one the user chose, such as "en", or "" to follow
+	// the system's.
+	Language string `json:"language"`
 }
 
 const (
@@ -42,6 +45,8 @@ type system interface {
 	ServiceInstalled() bool
 	UninstallService() error // asks for the password; blocks
 	CheckForUpdates()        // shows the update window
+	Languages() []string     // the languages the app is written in
+	SetLanguage(tag string)  // shows tag at once, "" for the system's; kept for the next launches
 }
 
 // session is a running TUN.
@@ -262,6 +267,13 @@ func (a *app) turnOff() {
 			a.setNote(plain, "")
 		})
 	}()
+}
+
+// setLanguage shows the app in tag, or in the system's language for "".
+func (a *app) setLanguage(tag string) {
+	a.s.Language = tag
+	a.save()
+	a.sys.SetLanguage(tag)
 }
 
 // uninstall removes the service, which asks for the password.
