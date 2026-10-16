@@ -57,12 +57,15 @@ func TestSnapshots(t *testing.T) {
 	f = newFixture(t)
 	f.tt.SetScale(scale)
 	f.a.s.Address, f.a.s.Kind = "proxy.example.com:443", 1
-	// The apps of this Mac, to see the list as it is.
-	f.sys.apps = apps.List(apps.Dirs()...)
+	// Apps most Macs have, rather than this Mac's.
+	f.sys.apps = nil
+	for _, name := range []string{"Discord", "Figma", "Google Chrome", "Notion", "Safari", "Slack", "Spotify", "Telegram", "Terminal", "Visual Studio Code", "WeChat", "Xcode", "Zoom"} {
+		f.sys.apps = append(f.sys.apps, apps.App{Path: "/Applications/" + name + ".app", Name: name})
+	}
 	f.click("指定应用")
 	f.settle(1)
-	for _, ap := range f.a.apps[2:min(5, len(f.a.apps))] {
-		f.a.choose(ap.Path, true)
+	for _, name := range []string{"Google Chrome", "Slack", "Visual Studio Code"} {
+		f.a.choose("/Applications/"+name+".app", true)
 	}
 	f.click("开启")
 	f.settle(2)

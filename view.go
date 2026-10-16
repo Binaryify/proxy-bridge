@@ -92,6 +92,9 @@ func (p *panel) header(c *ui.Context) {
 		ui.Box(c).Size(24, 30).Center().TextColor(muted).Label("更多").Cursor(ui.CursorPointer).Children(func() {
 			icon(c, "ellipsis").FontSize(16)
 		}).Menu(func(m *ui.Menu) {
+			if m.Item("检查更新…").Chosen() {
+				a.sys.CheckForUpdates()
+			}
 			if m.Item("重新读取应用列表").Chosen() {
 				a.loadApps()
 			}

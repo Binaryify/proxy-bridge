@@ -2,6 +2,12 @@
 
 用虚拟网卡（TUN）把 Mac 上**全部应用**或**选中应用**的流量送进一个 HTTP / HTTPS / SOCKS5 代理。不改系统代理，不需要应用配合：原生应用、不认系统代理的程序、命令行工具都能接管。常驻菜单栏，界面风格同 [MonitorBar](https://github.com/dcchanInSz/MonitorBar)。Go + [mygo](https://github.com/egoist/mygo) 原生 UI，TUN 内核是精简编译的 [sing-box](https://github.com/SagerNet/sing-box)。
 
+![代理桥：未开启、全部应用已开启、应用列表](docs/screenshot.png)
+
+## 安装
+
+从 [Releases](https://github.com/Binaryify/proxy-bridge/releases) 下载 dmg，把「Proxy Bridge」拖进「应用程序」。目前只有 Apple 芯片的构建，且未经 Apple 公证：第一次打开若提示无法验证开发者，在「系统设置 › 隐私与安全性」里点「仍要打开」。之后的版本由应用自己更新（每天检查一次，也可以在面板「…」或菜单栏图标右键里「检查更新…」）；每次更新后第一次开启会再问一次密码，用来更新后台服务。
+
 ## 用法
 
 点菜单栏的图标打开面板（启动时会自动打开一次），右键图标可以退出。
@@ -44,6 +50,14 @@
 ## 构建
 
 需要 Go 1.27+，mygo 作为 Go tool 依赖。
+
+发布新版本：改 `mygo.json` 的 `version`，在 `CHANGELOG.md` 写上这个版本的说明，然后带着更新签名私钥打包上传（私钥由 `mygo keygen` 生成，存在 `~/Library/Application Support/mygo/update-keys/`，不要放进仓库，丢了已安装的应用就收不到更新）：
+
+```bash
+MYGO_UPDATER_PRIVATE_KEY="$(cat ~/Library/Application\ Support/mygo/update-keys/mygo-update.key)" go tool mygo build -upload
+```
+
+它会建一个草稿 Release，在 GitHub 上发布后，已安装的应用就能检查到。
 
 ```bash
 go tool mygo dev          # 开发，改代码自动重启

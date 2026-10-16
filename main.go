@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/egoist/mygo"
+	"github.com/egoist/mygo/plugins/updater"
+	"github.com/egoist/mygo/plugins/updater/native"
 	"github.com/egoist/mygo/ui"
 
 	"proxybridge/internal/apps"
@@ -52,6 +54,9 @@ func main() {
 	if !mygo.App.RequestSingleInstanceLock() {
 		return
 	}
+	// Signed updates from the GitHub releases, checked daily, in a window
+	// of native UI.
+	mygo.Use(native.Plugin)
 	mygo.App.SetActivationPolicy(mygo.ActivationPolicyAccessory)
 	mygo.App.OnWindowAllClosed(func() {}) // the panel is the only window: keep running as it closes
 	// The Edit menu's roles paste into the address field.
@@ -87,6 +92,7 @@ func (sh *shell) ready() {
 	}
 	menu := mygo.NewMenu([]*mygo.MenuItem{
 		{Label: "打开代理桥", Click: func(*mygo.MenuItem, *mygo.Window) { sh.open() }},
+		{Label: "检查更新…", Click: func(*mygo.MenuItem, *mygo.Window) { updater.CheckForUpdates() }},
 		mygo.Separator(),
 		{Label: "退出代理桥", Click: func(*mygo.MenuItem, *mygo.Window) { mygo.App.Quit() }},
 	})
@@ -194,3 +200,5 @@ func (d desktop) StartTUN(c tun.Config, installing func()) (session, error) {
 func (desktop) ServiceInstalled() bool { return tun.Installed() }
 
 func (desktop) UninstallService() error { return tun.Uninstall() }
+
+func (desktop) CheckForUpdates() { updater.CheckForUpdates() }

@@ -40,6 +40,7 @@ type system interface {
 	StartTUN(c tun.Config, installing func()) (session, error)
 	ServiceInstalled() bool
 	UninstallService() error // asks for the password; blocks
+	CheckForUpdates()        // shows the update window
 }
 
 // session is a running TUN.

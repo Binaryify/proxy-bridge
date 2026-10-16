@@ -29,6 +29,8 @@ type fakeSystem struct {
 
 func (f *fakeSystem) Apps() []apps.App { return f.apps }
 
+func (f *fakeSystem) CheckForUpdates() {}
+
 func (f *fakeSystem) ServiceInstalled() bool {
 	f.mu.Lock()
 	defer f.mu.Unlock()
