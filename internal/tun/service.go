@@ -149,14 +149,14 @@ func checkPeer(conn *net.UnixConn, uid int, app string) error {
 		return err
 	}
 	if credErr != nil || pidErr != nil {
-		return errors.New("认不出连接的来源")
+		return errors.New("cannot tell where the connection comes from")
 	}
 	if int(cred.Uid) != uid {
-		return errors.New("后台服务是为另一个用户安装的")
+		return errors.New("the service is installed for another user")
 	}
 	path, err := processPath(pid)
 	if err != nil || !samePath(path, app) {
-		return errors.New("后台服务是为另一个位置的代理桥安装的")
+		return errors.New("the service is installed for another copy of the app")
 	}
 	return nil
 }

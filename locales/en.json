@@ -1,0 +1,371 @@
+{
+  "@@locale": "en",
+  "appName": "Proxy Bridge",
+  "@appName": {
+    "description": "The app's name, in the panel and the menu bar."
+  },
+  "trayOn": "Proxy Bridge · On",
+  "@trayOn": {
+    "description": "The menu bar icon's tooltip while the TUN is on."
+  },
+  "menuOpen": "Open Proxy Bridge",
+  "@menuOpen": {
+    "description": "Menu item opening the panel."
+  },
+  "menuCheckUpdates": "Check for Updates…",
+  "@menuCheckUpdates": {
+    "description": "Menu item."
+  },
+  "menuReloadApps": "Reload App List",
+  "@menuReloadApps": {
+    "description": "Menu item reading the installed apps again."
+  },
+  "menuUninstallService": "Uninstall Background Service…",
+  "@menuUninstallService": {
+    "description": "Menu item removing the root service."
+  },
+  "menuQuit": "Quit Proxy Bridge",
+  "@menuQuit": {
+    "description": "Menu item."
+  },
+  "more": "More",
+  "@more": {
+    "description": "Accessibility label of the … button."
+  },
+  "turnOn": "Turn On",
+  "@turnOn": {
+    "description": "The power button while off."
+  },
+  "turnOff": "Turn Off",
+  "@turnOff": {
+    "description": "The power button while on."
+  },
+  "turnOnTUN": "Turn on TUN",
+  "@turnOnTUN": {
+    "description": "Tooltip of the power button while off."
+  },
+  "turnOffTUN": "Turn off TUN",
+  "@turnOffTUN": {
+    "description": "Tooltip of the power button while on."
+  },
+  "noUpstream": "No upstream proxy yet",
+  "@noUpstream": {
+    "description": "Header caption before an address is typed."
+  },
+  "tabOverview": "Overview",
+  "@tabOverview": {
+    "description": "Tab."
+  },
+  "tabApps": "Apps",
+  "@tabApps": {
+    "description": "Tab listing the installed apps."
+  },
+  "upstreamTitle": "Upstream Proxy",
+  "@upstreamTitle": {
+    "description": "Card title."
+  },
+  "kindHTTP": "Plain HTTP proxy",
+  "@kindHTTP": {
+    "description": "Note on the HTTP type."
+  },
+  "kindHTTPS": "TLS to the proxy",
+  "@kindHTTPS": {
+    "description": "Note on the HTTPS type: TLS to the proxy itself."
+  },
+  "kindSOCKS5": "Proxy resolves names",
+  "@kindSOCKS5": {
+    "description": "Note on the SOCKS5 type."
+  },
+  "address": "Address",
+  "@address": {
+    "description": "Label of the address field."
+  },
+  "addressPlaceholder": "1.2.3.4:1080 or proxy.example.com:443",
+  "@addressPlaceholder": {
+    "description": "Placeholder of the address field."
+  },
+  "addressHint": "With a password: user:pass@host:port",
+  "@addressHint": {
+    "description": "Below the address field."
+  },
+  "scopeTitle": "Scope",
+  "@scopeTitle": {
+    "description": "Card title: which apps the TUN takes."
+  },
+  "scopeChosen": "{count} chosen",
+  "@scopeChosen": {
+    "description": "Card note: how many apps are checked.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modeAll": "All Apps",
+  "@modeAll": {
+    "description": "Mode."
+  },
+  "modeApps": "Chosen Apps",
+  "@modeApps": {
+    "description": "Mode."
+  },
+  "modeAllHelp": "All traffic goes through the proxy, including apps that ignore the system proxy",
+  "@modeAllHelp": {
+    "description": "Explains the mode."
+  },
+  "modeAppsHelp": "Only the apps checked in the Apps tab, with their helpers, go through the proxy; the rest connect directly",
+  "@modeAppsHelp": {
+    "description": "Explains the mode."
+  },
+  "privateTitle": "Private Addresses via Proxy",
+  "@privateTitle": {
+    "description": "Switch title."
+  },
+  "privateHelp": "10.x, 172.16–31.x, 192.168.x and so on, to reach the network behind the proxy; this Mac's own subnets always connect directly",
+  "@privateHelp": {
+    "description": "Explains the switch."
+  },
+  "heroOff": "Off",
+  "@heroOff": {
+    "description": "Big status while off."
+  },
+  "heroOffCaption": "Once on, traffic goes through a virtual interface to the upstream proxy",
+  "@heroOffCaption": {
+    "description": "Below it."
+  },
+  "heroInstalling": "Installing Service",
+  "@heroInstalling": {
+    "description": "Big status while the root service installs."
+  },
+  "heroInstallingCaption": "Enter an administrator password in the system dialog — just this once",
+  "@heroInstallingCaption": {
+    "description": "Below it."
+  },
+  "heroStarting": "Turning On…",
+  "@heroStarting": {
+    "description": "Big status."
+  },
+  "heroStartingCaption": "Starting the virtual interface",
+  "@heroStartingCaption": {
+    "description": "Below it."
+  },
+  "heroProbing": "Testing…",
+  "@heroProbing": {
+    "description": "Big status while the upstream is tested."
+  },
+  "heroProbingCaption": "Reaching the internet through the upstream proxy",
+  "@heroProbingCaption": {
+    "description": "Below it."
+  },
+  "heroUnreachable": "Upstream Unreachable",
+  "@heroUnreachable": {
+    "description": "Big status when the test failed."
+  },
+  "heroLatency": "{ms} ms",
+  "@heroLatency": {
+    "description": "Big status: the upstream's latency.",
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "heroLatencyCaption": "Upstream latency · {upstream}",
+  "@heroLatencyCaption": {
+    "description": "Below it, with the upstream's URL.",
+    "placeholders": {
+      "upstream": {
+        "type": "String"
+      }
+    }
+  },
+  "nodeApps": "Apps",
+  "@nodeApps": {
+    "description": "Route diagram: the apps."
+  },
+  "nodeProxy": "Proxy",
+  "@nodeProxy": {
+    "description": "Route diagram: the upstream proxy."
+  },
+  "appsAllModeNote": "All apps are taken now. Switch to Chosen Apps and only the apps checked here go through the proxy.",
+  "@appsAllModeNote": {
+    "description": "Apps tab in the All Apps mode."
+  },
+  "appsSwitchToChosen": "Switch to Chosen Apps",
+  "@appsSwitchToChosen": {
+    "description": "Button."
+  },
+  "searchApps": "Search Apps",
+  "@searchApps": {
+    "description": "Search field."
+  },
+  "searchCount": "{count} chosen",
+  "@searchCount": {
+    "description": "In the search field.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "appsNoMatch": "No matching apps",
+  "@appsNoMatch": {
+    "description": "Empty list."
+  },
+  "appsLoading": "Reading apps…",
+  "@appsLoading": {
+    "description": "Empty list while reading."
+  },
+  "appsHint": "Checked apps, with their helpers, go through the proxy; changes apply at once, even while on",
+  "@appsHint": {
+    "description": "Below the list, before any is checked."
+  },
+  "appsChosen": "Chosen: {names}",
+  "@appsChosen": {
+    "description": "Below the list.",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "listSeparator": ", ",
+  "@listSeparator": {
+    "description": "Between the names of a list."
+  },
+  "statusOff": "Off",
+  "@statusOff": {
+    "description": "Footer."
+  },
+  "statusInstalling": "First use: waiting for the administrator password to install the service…",
+  "@statusInstalling": {
+    "description": "Footer."
+  },
+  "statusStarting": "Turning on…",
+  "@statusStarting": {
+    "description": "Footer."
+  },
+  "statusOnAll": "TUN on · all apps",
+  "@statusOnAll": {
+    "description": "Footer."
+  },
+  "statusOnApps": "{count, plural, one {TUN on · # app} other {TUN on · # apps}}",
+  "@statusOnApps": {
+    "description": "Footer.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noteUpdateAppsFailed": "Couldn't update the apps: {error}",
+  "@noteUpdateAppsFailed": {
+    "description": "Note.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noteChooseApps": "Check the apps to send through the proxy first",
+  "@noteChooseApps": {
+    "description": "Note."
+  },
+  "noteCanceled": "Canceled",
+  "@noteCanceled": {
+    "description": "Note after the password dialog was canceled."
+  },
+  "noteStopped": "The TUN stopped unexpectedly. Turn it on again.",
+  "@noteStopped": {
+    "description": "Note."
+  },
+  "noteTurningOff": "Turning off…",
+  "@noteTurningOff": {
+    "description": "Note."
+  },
+  "noteUninstalling": "Uninstalling the background service…",
+  "@noteUninstalling": {
+    "description": "Note."
+  },
+  "noteUninstallFailed": "Couldn't uninstall the background service: {error}",
+  "@noteUninstallFailed": {
+    "description": "Note.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noteUninstalled": "Background service uninstalled; it installs again the next time you turn on",
+  "@noteUninstalled": {
+    "description": "Note."
+  },
+  "errAppUpdated": "Proxy Bridge was updated. Quit and open it again.",
+  "@errAppUpdated": {
+    "description": "Error."
+  },
+  "errServiceNotReady": "The background service isn't ready: {error}",
+  "@errServiceNotReady": {
+    "description": "Error.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errServiceNoAnswer": "The background service didn't answer",
+  "@errServiceNoAnswer": {
+    "description": "Error."
+  },
+  "errStartFailed": "Couldn't turn on the TUN: {error}",
+  "@errStartFailed": {
+    "description": "Error.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errAdminFailed": "Didn't finish: {error}",
+  "@errAdminFailed": {
+    "description": "Error of the password dialog's script.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "promptInstall": "Proxy Bridge installs a background service to create a virtual network interface (TUN). Turning it on and off needs no password afterwards.",
+  "@promptInstall": {
+    "description": "The system password dialog's text."
+  },
+  "promptUninstall": "Proxy Bridge uninstalls its background service.",
+  "@promptUninstall": {
+    "description": "The system password dialog's text."
+  },
+  "errAddressEmpty": "Enter the proxy's address, e.g. 1.2.3.4:1080",
+  "@errAddressEmpty": {
+    "description": "Address error."
+  },
+  "errAddressFormat": "The address should be host:port",
+  "@errAddressFormat": {
+    "description": "Address error."
+  },
+  "errScheme": "{scheme} isn't supported; use http, https or socks5",
+  "@errScheme": {
+    "description": "Address error.",
+    "placeholders": {
+      "scheme": {
+        "type": "String"
+      }
+    }
+  },
+  "errNoHost": "Missing host; the address should be host:port",
+  "@errNoHost": {
+    "description": "Address error."
+  },
+  "errPort": "Missing port, or not within 1–65535; the address should be host:port",
+  "@errPort": {
+    "description": "Address error."
+  }
+}

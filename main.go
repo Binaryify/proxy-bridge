@@ -16,6 +16,7 @@ import (
 
 	"proxybridge/internal/apps"
 	"proxybridge/internal/tun"
+	"proxybridge/locales"
 )
 
 // chrome is the panel's height besides the scrolling content: arrow,
@@ -48,7 +49,7 @@ func main() {
 	// The window is the user's: as root it would install the service for
 	// root, which no app of the user's reaches.
 	if os.Geteuid() == 0 {
-		log.Fatal("代理桥不能以 root 身份运行")
+		log.Fatal("Proxy Bridge must not run as root")
 	}
 	// Two instances would fight over the network.
 	if !mygo.App.RequestSingleInstanceLock() {
@@ -86,20 +87,23 @@ func (sh *shell) ready() {
 	sh.a = newApp(dir, desktop{exe: exe, version: version}, sh.post)
 	sh.panel = &panel{a: sh.a, height: 560, maxContent: 640, onHeight: sh.resize}
 
-	sh.tray, err = mygo.NewTray(mygo.TrayOptions{Icon: trayIcon(false), IconIsTemplate: true, ToolTip: "代理桥"})
+	sh.tray, err = mygo.NewTray(mygo.TrayOptions{Icon: trayIcon(false), IconIsTemplate: true, ToolTip: locales.AppName()})
 	if err != nil {
 		log.Fatal("tray: ", err)
 	}
-	menu := mygo.NewMenu([]*mygo.MenuItem{
-		{Label: "打开代理桥", Click: func(*mygo.MenuItem, *mygo.Window) { sh.open() }},
-		{Label: "检查更新…", Click: func(*mygo.MenuItem, *mygo.Window) { updater.CheckForUpdates() }},
-		mygo.Separator(),
-		{Label: "退出代理桥", Click: func(*mygo.MenuItem, *mygo.Window) { mygo.App.Quit() }},
-	})
+	// The menu is made as it pops up, in the language of the moment.
+	menu := func() *mygo.Menu {
+		return mygo.NewMenu([]*mygo.MenuItem{
+			{Label: locales.MenuOpen(), Click: func(*mygo.MenuItem, *mygo.Window) { sh.open() }},
+			{Label: locales.MenuCheckUpdates(), Click: func(*mygo.MenuItem, *mygo.Window) { updater.CheckForUpdates() }},
+			mygo.Separator(),
+			{Label: locales.MenuQuit(), Click: func(*mygo.MenuItem, *mygo.Window) { mygo.App.Quit() }},
+		})
+	}
 	sh.tray.OnClick(sh.toggle)
 	sh.tray.OnRightClick(func() {
 		sh.close()
-		sh.tray.SetMenu(menu) // for this popup only, so clicks keep toggling the panel
+		sh.tray.SetMenu(menu()) // for this popup only, so clicks keep toggling the panel
 		defer sh.tray.SetMenu(nil)
 		sh.tray.PopUpMenu()
 	})
@@ -122,12 +126,19 @@ func (sh *shell) post(fn func()) {
 		if on := sh.a.on(); on != sh.trayOn {
 			sh.trayOn = on
 			sh.tray.SetIcon(trayIcon(on), true)
-			sh.tray.SetToolTip(map[bool]string{true: "代理桥 · 已开启", false: "代理桥"}[on])
+			sh.tray.SetToolTip(sh.toolTip())
 		}
 		if sh.flyout != nil {
 			sh.flyout.Invalidate()
 		}
 	})
+}
+
+func (sh *shell) toolTip() string {
+	if sh.trayOn {
+		return locales.TrayOn()
+	}
+	return locales.AppName()
 }
 
 func (sh *shell) toggle() {

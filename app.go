@@ -14,6 +14,7 @@ import (
 	"proxybridge/internal/apps"
 	"proxybridge/internal/tun"
 	"proxybridge/internal/upstream"
+	"proxybridge/locales"
 )
 
 // settings are what the user chose, kept between launches.
@@ -174,7 +175,7 @@ func (a *app) choose(path string, on bool) {
 	if a.on() && !a.cfg.All {
 		a.cfg.Apps = a.chosenPaths()
 		if err := a.sess.Update(a.cfg); err != nil {
-			a.setNote(bad, "更新应用失败：%v", err)
+			a.setNote(bad, "%s", locales.NoteUpdateAppsFailed(err.Error()))
 		}
 	}
 }
@@ -202,7 +203,7 @@ func (a *app) turnOn() {
 	}
 	cfg := tun.Config{Upstream: p.URL(), All: a.s.Mode == modeAll, Apps: a.chosenPaths(), Private: a.s.Private}
 	if !cfg.All && len(cfg.Apps) == 0 {
-		a.setNote(bad, "请先勾选要走代理的应用")
+		a.setNote(bad, "%s", locales.NoteChooseApps())
 		return
 	}
 	a.save()
@@ -213,9 +214,12 @@ func (a *app) turnOn() {
 		if err != nil {
 			a.post(func() {
 				a.busy, a.installing = false, false
-				if errors.Is(err, tun.ErrCanceled) {
-					a.setNote(plain, "已取消")
-				} else {
+				switch {
+				case errors.Is(err, tun.ErrCanceled):
+					a.setNote(plain, "%s", locales.NoteCanceled())
+				case errors.Is(err, tun.ErrUpdated):
+					a.setNote(bad, "%s", locales.ErrAppUpdated())
+				default:
 					a.setNote(bad, "%v", err)
 				}
 			})
@@ -239,7 +243,7 @@ func (a *app) tunEvent(s session, ev tun.Event) {
 		a.probing, a.latency, a.probeErr = false, ev.Millis, ev.Error
 	case tun.EventClosed:
 		a.sess, a.probing = nil, false
-		a.setNote(bad, "TUN 意外停止了，请重新开启")
+		a.setNote(bad, "%s", locales.NoteStopped())
 	}
 }
 
@@ -250,7 +254,7 @@ func (a *app) turnOff() {
 	}
 	s := a.sess
 	a.sess, a.probing, a.busy = nil, false, true
-	a.setNote(plain, "正在关闭…")
+	a.setNote(plain, "%s", locales.NoteTurningOff())
 	go func() {
 		s.Close()
 		a.post(func() {
@@ -266,18 +270,18 @@ func (a *app) uninstall() {
 		return
 	}
 	a.busy = true
-	a.setNote(plain, "正在卸载后台服务…")
+	a.setNote(plain, "%s", locales.NoteUninstalling())
 	go func() {
 		err := a.sys.UninstallService()
 		a.post(func() {
 			a.busy = false
 			switch {
 			case errors.Is(err, tun.ErrCanceled):
-				a.setNote(plain, "已取消")
+				a.setNote(plain, "%s", locales.NoteCanceled())
 			case err != nil:
-				a.setNote(bad, "卸载后台服务失败：%v", err)
+				a.setNote(bad, "%s", locales.NoteUninstallFailed(err.Error()))
 			default:
-				a.setNote(good, "已卸载后台服务，下次开启会重新安装")
+				a.setNote(good, "%s", locales.NoteUninstalled())
 			}
 		})
 	}()

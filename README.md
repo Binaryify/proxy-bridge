@@ -1,5 +1,7 @@
 # 代理桥 · Proxy Bridge
 
+简体中文 · [English](README.en.md)
+
 用虚拟网卡（TUN）把 Mac 上**全部应用**或**选中应用**的流量送进一个 HTTP / HTTPS / SOCKS5 代理。不改系统代理，不需要应用配合：原生应用、不认系统代理的程序、命令行工具都能接管。常驻菜单栏，界面风格同 [MonitorBar](https://github.com/dcchanInSz/MonitorBar)。Go + [mygo](https://github.com/egoist/mygo) 原生 UI，TUN 内核是精简编译的 [sing-box](https://github.com/SagerNet/sing-box)。
 
 ![代理桥：未开启、全部应用已开启、应用列表](docs/screenshot.png)
@@ -30,11 +32,13 @@
 
 面板关掉后 TUN 继续工作；从右键菜单或面板的「…」退出时关闭 TUN。不用了可以在「…」里选「卸载后台服务…」。
 
+界面支持简体中文和英文，跟随系统语言。
+
 ## 原理
 
 ```text
-应用 ──► 虚拟网卡 utun（sing-box，root 辅助进程）──┬─ 勾选的应用 / 全部 ──► 上游代理 ──► 目标
-                                                   └─ 其余、局域网 ─────────► 直连（绑定物理网卡）
+应用 ──► 虚拟网卡 utun（sing-box，后台服务）──┬─ 勾选的应用 / 全部 ──► 上游代理 ──► 目标
+                                              └─ 其余 ─────────────────► 直连（绑定物理网卡）
 ```
 
 - **后台服务**（和 Clash Verge 的「服务模式」同一思路）：第一次开启时，经 `osascript … with administrator privileges` 把本程序复制到 `/Library/PrivilegedHelperTools/com.binaryify.proxybridge.helper`（root 所有，普通用户改不了），装一个 LaunchDaemon（`/Library/LaunchDaemons/com.binaryify.proxybridge.helper.plist`），以 root 常驻、开机自启。之后应用只通过 `/var/run/com.binaryify.proxybridge.helper.sock` 跟它说话，不再需要密码。
@@ -74,8 +78,13 @@ go tool mygo dev          # 开发，改代码自动重启
 go test -race ./...       # 单元测试 + 无窗口 UI 测试 + sing-box 配置加载测试
 go tool mygo vet .        # mygo 的元素生命周期检查
 go tool mygo build        # 打包 build/darwin-arm64/Proxy Bridge.app（+ dmg）
-PROXYBRIDGE_SNAPSHOTS=/tmp/shots go test -run Snapshots .   # 面板和菜单栏图标的离屏截图
+PROXYBRIDGE_SNAPSHOTS=/tmp/shots go test -run Snapshots .                         # 面板和菜单栏图标的离屏截图
+PROXYBRIDGE_SNAPSHOTS=/tmp/shots PROXYBRIDGE_LOCALE=en go test -run Snapshots .   # 英文界面
 ```
+
+### 多语言
+
+界面文字都在 `locales/` 里，每种语言一个 JSON 文件（`en.json` 是源语言，另有 `zh-Hans.json`），格式是 ICU MessageFormat。`go tool mygo dev` 和 `go tool mygo build` 会据此生成 `locales/catalog_gen.go`，每条文字一个函数。加一种语言：照 `en.json` 的全部条目写一份 `locales/<语言>.json`（比如 `ja.json`），再运行 `go tool mygo generate`；`TestCatalogs` 会检查各语言的条目是否一致。
 
 ## 结构
 
@@ -84,6 +93,7 @@ main.go             菜单栏图标与面板；--service 时作为 root 后台�
 app.go              状态与流程：开启/关闭、勾选应用、设置保存
 view.go             面板：头部、标签页、概览、应用列表、底部状态
 style.go            MonitorBar 的配色、卡片、按钮与图标
+locales/            各语言的界面文字，以及生成的访问函数
 internal/tun        sing-box 配置、root 后台服务（安装/卸载/对端核验）、应用与服务之间的会话
 internal/apps       列出已安装应用
 internal/upstream   解析代理地址

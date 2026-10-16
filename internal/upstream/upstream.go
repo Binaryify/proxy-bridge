@@ -3,10 +3,11 @@ package upstream
 
 import (
 	"errors"
-	"fmt"
 	"net/url"
 	"strconv"
 	"strings"
+
+	"proxybridge/locales"
 )
 
 // Kind is the protocol spoken to the proxy.
@@ -33,24 +34,24 @@ type Proxy struct {
 func Parse(kind Kind, s string) (Proxy, error) {
 	s = strings.TrimSpace(s)
 	if s == "" {
-		return Proxy{}, errors.New("请填写代理地址，例如 1.2.3.4:1080")
+		return Proxy{}, errors.New(locales.ErrAddressEmpty())
 	}
 	if !strings.Contains(s, "://") {
 		s = string(kind) + "://" + s
 	}
 	u, err := url.Parse(s)
 	if err != nil {
-		return Proxy{}, errors.New("地址格式不对，应为 主机:端口")
+		return Proxy{}, errors.New(locales.ErrAddressFormat())
 	}
 	p := Proxy{Kind: Kind(strings.ToLower(u.Scheme)), Addr: u.Host, User: u.User}
 	if !p.Kind.valid() {
-		return Proxy{}, fmt.Errorf("不支持 %s，只支持 http、https、socks5", u.Scheme)
+		return Proxy{}, errors.New(locales.ErrScheme(u.Scheme))
 	}
 	if u.Hostname() == "" {
-		return Proxy{}, errors.New("缺少主机，应为 主机:端口")
+		return Proxy{}, errors.New(locales.ErrNoHost())
 	}
 	if port, err := strconv.Atoi(u.Port()); err != nil || port < 1 || port > 65535 {
-		return Proxy{}, errors.New("缺少端口或端口不在 1–65535，应为 主机:端口")
+		return Proxy{}, errors.New(locales.ErrPort())
 	}
 	return p, nil
 }

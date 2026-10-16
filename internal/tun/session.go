@@ -14,6 +14,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"proxybridge/locales"
 )
 
 // Session is a running TUN, as the app sees it: the connection to the
@@ -27,11 +29,11 @@ type Session struct {
 }
 
 // ErrCanceled is the answer when the password dialog is canceled.
-var ErrCanceled = errors.New("已取消")
+var ErrCanceled = errors.New("canceled")
 
 // ErrUpdated is Start's answer when the app's executable changed since it
 // launched: the running app would install a service it may not speak to.
-var ErrUpdated = errors.New("代理桥已经更新，请退出后重新打开")
+var ErrUpdated = errors.New("the app was updated since it launched")
 
 const (
 	helloTimeout = 5 * time.Second  // for the service to answer
@@ -65,7 +67,7 @@ func Start(exe, version string, c Config, installing func()) (*Session, error) {
 			}
 		}
 		if err != nil {
-			return nil, fmt.Errorf("后台服务没有就绪：%w", err)
+			return nil, errors.New(locales.ErrServiceNotReady(err.Error()))
 		}
 	}
 	s := &Session{conn: conn, dec: dec, done: make(chan struct{})}
@@ -77,12 +79,12 @@ func Start(exe, version string, c Config, installing func()) (*Session, error) {
 	var ev Event
 	if err := dec.Decode(&ev); err != nil {
 		conn.Close()
-		return nil, errors.New("后台服务没有回应")
+		return nil, errors.New(locales.ErrServiceNoAnswer())
 	}
 	conn.SetReadDeadline(time.Time{})
 	if ev.Kind != EventStarted {
 		conn.Close()
-		return nil, fmt.Errorf("开启 TUN 失败：%s", ev.Error)
+		return nil, errors.New(locales.ErrStartFailed(ev.Error))
 	}
 	return s, nil
 }
@@ -102,7 +104,7 @@ func connect(version string) (*net.UnixConn, *json.Decoder, error) {
 	case ev.Kind == EventRefused:
 		err = errors.New(ev.Error)
 	case ev.Kind != EventHello || ev.Version != version:
-		err = errors.New("后台服务的版本和应用不同")
+		err = errors.New("the service is another version")
 	}
 	if err != nil {
 		conn.Close()
@@ -161,7 +163,7 @@ func Installed() bool {
 // replace it.
 var install = func(exe string) error {
 	if os.Getuid() == 0 {
-		return errors.New("代理桥不能以 root 身份运行")
+		return errors.New("Proxy Bridge must not run as root")
 	}
 	plist, err := os.CreateTemp("", "proxy-bridge-*.plist")
 	if err != nil {
@@ -175,13 +177,13 @@ var install = func(exe string) error {
 	if err != nil {
 		return err
 	}
-	return admin("代理桥要安装后台服务来创建虚拟网卡（TUN），之后开关不再需要密码。", installScript, exe, plist.Name())
+	return admin(locales.PromptInstall(), installScript, exe, plist.Name())
 }
 
 // Uninstall stops the service and removes it; the system asks for the
 // password.
 func Uninstall() error {
-	return admin("代理桥要卸载后台服务。", uninstallScript)
+	return admin(locales.PromptUninstall(), uninstallScript)
 }
 
 // The scripts run as root, with their arguments as $1, $2: they take no
@@ -228,7 +230,7 @@ func admin(prompt, script string, args ...string) error {
 		if strings.Contains(string(out), "-128") {
 			return ErrCanceled
 		}
-		return fmt.Errorf("没有完成：%s", strings.TrimSpace(string(out)))
+		return errors.New(locales.ErrAdminFailed(strings.TrimSpace(string(out))))
 	}
 	return nil
 }

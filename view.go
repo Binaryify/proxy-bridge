@@ -1,18 +1,22 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 
 	"proxybridge/internal/upstream"
+	"proxybridge/locales"
 )
 
-type tab struct{ name, icon string }
+type tab struct {
+	name func() string
+	icon string
+}
 
-var tabs = []tab{{"概览", "gauge"}, {"应用列表", "grid"}}
+// tabs are named as they show, in the language of the moment.
+var tabs = []tab{{locales.TabOverview, "gauge"}, {locales.TabApps, "grid"}}
 
 const arrowHeight = 10
 
@@ -86,36 +90,36 @@ func (p *panel) header(c *ui.Context) {
 			icon(c, "route").FontSize(15).TextColor(ui.RGB(255, 255, 255))
 		})
 		ui.Column(c).Gap(3).Grow(1).Children(func() {
-			ui.Text(c, "代理桥").FontSize(16).FontWeight(600).LetterSpacing(-0.3)
+			ui.Text(c, locales.AppName()).FontSize(16).FontWeight(600).LetterSpacing(-0.3)
 			ui.Text(c, a.caption()).FontSize(10).FontWeight(500).TextColor(muted).SingleLine()
 		})
-		ui.Box(c).Size(24, 30).Center().TextColor(muted).Label("更多").Cursor(ui.CursorPointer).Children(func() {
+		ui.Box(c).Size(24, 30).Center().TextColor(muted).Label(locales.More()).Cursor(ui.CursorPointer).Children(func() {
 			icon(c, "ellipsis").FontSize(16)
 		}).Menu(func(m *ui.Menu) {
-			if m.Item("检查更新…").Chosen() {
+			if m.Item(locales.MenuCheckUpdates()).Chosen() {
 				a.sys.CheckForUpdates()
 			}
-			if m.Item("重新读取应用列表").Chosen() {
+			if m.Item(locales.MenuReloadApps()).Chosen() {
 				a.loadApps()
 			}
 			if a.sys.ServiceInstalled() {
 				// While on, the TUN needs it.
-				if m.Item("卸载后台服务…").Disabled(a.on() || a.busy).Chosen() {
+				if m.Item(locales.MenuUninstallService()).Disabled(a.on() || a.busy).Chosen() {
 					a.uninstall()
 				}
 			}
 			m.Separator()
-			if m.Item("退出代理桥").Chosen() {
+			if m.Item(locales.MenuQuit()).Chosen() {
 				mygo.App.Quit()
 			}
 		})
 		// The switch of the TUN: lit while on.
-		label := "开启"
+		label, tip := locales.TurnOn(), locales.TurnOnTUN()
 		if a.on() {
-			label = "关闭"
+			label, tip = locales.TurnOff(), locales.TurnOffTUN()
 		}
 		power := ui.Box(c).Size(32, 32).Radius(16).Center().Cursor(ui.CursorPointer).
-			Label(label).Tooltip(label + " TUN").Disabled(a.busy)
+			Label(label).Tooltip(tip).Disabled(a.busy)
 		switch {
 		case a.on():
 			power.Gradient(accent, accentDeep, 180).TextColor(ui.RGB(255, 255, 255))
@@ -145,7 +149,7 @@ func (p *panel) header(c *ui.Context) {
 func (a *app) caption() string {
 	addr := strings.TrimSpace(a.s.Address)
 	if addr == "" {
-		return "还没有填写上游代理"
+		return locales.NoUpstream()
 	}
 	if _, host, ok := strings.Cut(addr, "@"); ok {
 		addr = host // no password on screen
@@ -158,7 +162,8 @@ func (p *panel) tabs(c *ui.Context) {
 	ui.Row(c).Gap(4).Padding(4).Margin(0, 0, 12, 0).Radius(12).Background(ui.RGBA(255, 255, 255, 0.066)).Border(0.7, cardStroke).Children(func() {
 		for i, t := range tabs {
 			selected := a.s.Tab == i
-			e := ui.Box(c.Key(t.name)).Grow(1).Height(34).Radius(9).Center().Tooltip(t.name).Label(t.name).Cursor(ui.CursorPointer)
+			name := t.name()
+			e := ui.Box(c.Key(t.icon)).Grow(1).Height(34).Radius(9).Center().Tooltip(name).Label(name).Cursor(ui.CursorPointer)
 			if selected {
 				e.Background(accent.Alpha(0.2)).TextColor(accent)
 			} else {
@@ -183,7 +188,7 @@ func (p *panel) content(c *ui.Context) {
 		inner := ui.Column(c).Gap(12).Padding(0, 0, 4, 0)
 		inner.Children(func() {
 			if p.a.s.Tab == 1 {
-				sectionTitle(c, tabs[1].name)
+				sectionTitle(c, tabs[1].name())
 				p.apps(c)
 			} else {
 				p.overview(c)
@@ -209,7 +214,7 @@ func (p *panel) overview(c *ui.Context) {
 		}
 	}
 	dim(card(c, func() {
-		cardTitle(c, "上游代理", "server", kindNote[a.s.Kind])
+		cardTitle(c, locales.UpstreamTitle(), "server", kindNote[a.s.Kind]())
 		ui.Grid(c).Columns(3).Gap(6).Children(func() {
 			for i, k := range upstream.Kinds {
 				label := strings.ToUpper(string(k))
@@ -218,28 +223,29 @@ func (p *panel) overview(c *ui.Context) {
 				}
 			}
 		})
-		ui.TextInput(c.Key("address"), &a.s.Address).Label("地址").
-			Placeholder("1.2.3.4:1080 或 proxy.example.com:443").
+		ui.TextInput(c.Key("address"), &a.s.Address).Label(locales.Address()).
+			Placeholder(locales.AddressPlaceholder()).
 			OnChange(a.addressChanged).
 			OnSubmit(a.turnOn)
 		if a.addrErr != "" {
 			ui.Text(c, a.addrErr).FontSize(10).TextColor(red).Wrap()
 		} else {
-			ui.Text(c, "需要密码时写成 用户名:密码@主机:端口").FontSize(10).TextColor(muted)
+			ui.Text(c, locales.AddressHint()).FontSize(10).TextColor(muted)
 		}
 	}))
 	dim(card(c, func() {
 		trailing := ""
 		if a.s.Mode == modeApps {
-			trailing = fmt.Sprintf("已选 %d 个", len(a.chosen()))
+			trailing = locales.ScopeChosen(len(a.chosen()))
 		}
-		cardTitle(c, "接管范围", "route", trailing)
+		cardTitle(c, locales.ScopeTitle(), "route", trailing)
 		ui.Row(c).Gap(6).Children(func() {
 			for _, m := range []struct {
-				mode        int
-				icon, label string
-			}{{modeAll, "globe", "全部应用"}, {modeApps, "grid", "指定应用"}} {
-				e := chip(c.Key(m.label), a.s.Mode == m.mode).Grow(1).Height(50).Gap(5).Label(m.label)
+				mode  int
+				icon  string
+				label string
+			}{{modeAll, "globe", locales.ModeAll()}, {modeApps, "grid", locales.ModeApps()}} {
+				e := chip(c.Key(m.icon), a.s.Mode == m.mode).Grow(1).Height(50).Gap(5).Label(m.label)
 				e.Children(func() {
 					icon(c, m.icon).FontSize(14)
 					ui.Text(c, m.label).FontSize(10).FontWeight(500)
@@ -253,18 +259,18 @@ func (p *panel) overview(c *ui.Context) {
 				}
 			}
 		})
-		ui.Text(c, modeHelp[a.s.Mode]).FontSize(10).TextColor(muted).Wrap()
+		ui.Text(c, modeHelp[a.s.Mode]()).FontSize(10).TextColor(muted).Wrap()
 		ui.Divider(c).Background(cardStroke)
 		ui.Row(c).Gap(10).AlignItems(ui.Center).Children(func() {
 			// The text turns the switch over too, as a label does.
 			ui.Column(c).Gap(2).Grow(1).Cursor(ui.CursorPointer).Children(func() {
-				ui.Text(c, "内网地址走代理").FontSize(12).FontWeight(600)
-				ui.Text(c, "10.x、172.16–31.x、192.168.x 等，用来访问代理那头的内网；本机所在网段始终直连").FontSize(10).TextColor(muted).Wrap()
+				ui.Text(c, locales.PrivateTitle()).FontSize(12).FontWeight(600)
+				ui.Text(c, locales.PrivateHelp()).FontSize(10).TextColor(muted).Wrap()
 			}).OnClick(func() {
 				a.s.Private = !a.s.Private
 				a.save()
 			})
-			if ui.Switch(c.Key("private"), &a.s.Private).Label("内网地址走代理").Changed() {
+			if ui.Switch(c.Key("private"), &a.s.Private).Label(locales.PrivateTitle()).Changed() {
 				a.save()
 			}
 		})
@@ -276,18 +282,18 @@ func (p *panel) overview(c *ui.Context) {
 func (p *panel) hero(c *ui.Context) {
 	a := p.a
 	on := a.on()
-	title, caption := "未开启", "开启后，流量经虚拟网卡送进上游代理"
+	title, caption := locales.HeroOff(), locales.HeroOffCaption()
 	switch {
 	case a.installing:
-		title, caption = "安装后台服务", "请在系统对话框里输入管理员密码，只需要这一次"
+		title, caption = locales.HeroInstalling(), locales.HeroInstallingCaption()
 	case a.busy && !on:
-		title, caption = "开启中…", "正在启动虚拟网卡"
+		title, caption = locales.HeroStarting(), locales.HeroStartingCaption()
 	case on && a.probing:
-		title, caption = "测试中…", "正在经上游代理访问外网"
+		title, caption = locales.HeroProbing(), locales.HeroProbingCaption()
 	case on && a.probeErr != "":
-		title, caption = "上游不可用", a.probeErr
+		title, caption = locales.HeroUnreachable(), a.probeErr
 	case on:
-		title, caption = fmt.Sprintf("%d ms", a.latency), "上游延迟 · "+a.via.String()
+		title, caption = locales.HeroLatency(int(a.latency)), locales.HeroLatencyCaption(a.via.String())
 	}
 	ui.Column(c).Height(170).AlignItems(ui.Center).Justify(ui.Center).Gap(16).Draw(func(pt *ui.Painter, r ui.Rect) {
 		if on {
@@ -297,11 +303,11 @@ func (p *panel) hero(c *ui.Context) {
 		}
 	}).Children(func() {
 		ui.Row(c).AlignItems(ui.Start).Children(func() {
-			node(c, "grid", "应用", on)
+			node(c, "grid", locales.NodeApps(), on)
 			link(c, on)
 			node(c, "network", "TUN", on)
 			link(c, on)
-			node(c, "server", "代理", on)
+			node(c, "server", locales.NodeProxy(), on)
 		})
 		ui.Column(c).Gap(4).AlignItems(ui.Center).PaddingX(16).Children(func() {
 			ui.Text(c, title).FontSize(22).FontWeight(600).LetterSpacing(-0.4).FontFeatures("tnum")
@@ -339,8 +345,8 @@ func (p *panel) apps(c *ui.Context) {
 	a := p.a
 	if a.s.Mode == modeAll {
 		card(c, func() {
-			ui.Text(c, "现在接管的是全部应用。改为「指定应用」后，只有这里勾选的应用走代理。").FontSize(11).TextColor(muted).Wrap()
-			if !a.on() && !a.busy && chipText(c.Key("to-apps"), "改为指定应用", false) {
+			ui.Text(c, locales.AppsAllModeNote()).FontSize(11).TextColor(muted).Wrap()
+			if !a.on() && !a.busy && chipText(c.Key("to-apps"), locales.AppsSwitchToChosen(), false) {
 				a.s.Mode = modeApps
 				a.save()
 			}
@@ -350,8 +356,8 @@ func (p *panel) apps(c *ui.Context) {
 	ui.Row(c).Gap(8).Height(34).PaddingX(10).Radius(9).AlignItems(ui.Center).
 		Background(ui.RGBA(255, 255, 255, 0.06)).Border(0.7, cardStroke).Children(func() {
 		icon(c, "search").FontSize(13).TextColor(muted)
-		ui.TextInputBase(c.Key("search"), &a.query).Label("搜索应用").Placeholder("搜索应用").Grow(1).FontSize(12)
-		ui.Text(c, fmt.Sprintf("已选 %d", len(chosen))).FontSize(10).TextColor(muted)
+		ui.TextInputBase(c.Key("search"), &a.query).Label(locales.SearchApps()).Placeholder(locales.SearchApps()).Grow(1).FontSize(12)
+		ui.Text(c, locales.SearchCount(len(chosen))).FontSize(10).TextColor(muted)
 	})
 
 	shown := a.shown()
@@ -377,9 +383,9 @@ func (p *panel) apps(c *ui.Context) {
 			row.OnClick(func() { a.choose(ap.Path, !selected) })
 		}).Gap(2).Height(320).Children(func() {
 			if len(shown) == 0 {
-				empty := "没有匹配的应用"
+				empty := locales.AppsNoMatch()
 				if a.apps == nil {
-					empty = "正在读取应用…"
+					empty = locales.AppsLoading()
 				}
 				ui.Text(c, empty).TextColor(muted).Padding(12)
 			}
@@ -389,9 +395,9 @@ func (p *panel) apps(c *ui.Context) {
 	for _, ap := range chosen {
 		names = append(names, ap.Name)
 	}
-	summary := "勾选的应用连同它的辅助进程走代理，开启后增减立即生效"
+	summary := locales.AppsHint()
 	if len(names) > 0 {
-		summary = "已选：" + strings.Join(names, "、")
+		summary = locales.AppsChosen(strings.Join(names, locales.ListSeparator()))
 	}
 	ui.Text(c, summary).FontSize(10).TextColor(muted).MaxLines(2).Padding(0, 2)
 }
@@ -401,20 +407,20 @@ func (p *panel) apps(c *ui.Context) {
 // footer tells how the TUN is, or how the last action went.
 func (p *panel) footer(c *ui.Context) {
 	a := p.a
-	dot, text, spin := muted, "未开启", false
+	dot, text, spin := muted, locales.StatusOff(), false
 	switch {
 	case a.installing:
-		dot, text, spin = yellow, "首次使用：等待管理员密码以安装后台服务…", true
+		dot, text, spin = yellow, locales.StatusInstalling(), true
 	case a.busy && !a.on() && a.note == "":
-		dot, text, spin = yellow, "正在开启…", true
+		dot, text, spin = yellow, locales.StatusStarting(), true
 	case a.busy:
 		dot, text, spin = yellow, a.note, true
 	case a.note != "":
 		dot, text = map[tone]ui.Color{plain: muted, good: green, bad: red}[a.noteTone], a.note
 	case a.on():
-		dot, text = green, "TUN 已开启 · 全部应用"
+		dot, text = green, locales.StatusOnAll()
 		if !a.cfg.All {
-			text = fmt.Sprintf("TUN 已开启 · %d 个应用", len(a.cfg.Apps))
+			text = locales.StatusOnApps(len(a.cfg.Apps))
 		}
 	}
 	ui.Row(c).Gap(6).Padding(12, 0).AlignItems(ui.Center).Children(func() {
@@ -427,10 +433,10 @@ func (p *panel) footer(c *ui.Context) {
 }
 
 // kindNote tells the kinds apart, by the index of upstream.Kinds.
-var kindNote = []string{"普通 HTTP 代理", "TLS 加密连到代理", "域名交给代理解析"}
+var kindNote = []func() string{locales.KindHTTP, locales.KindHTTPS, locales.KindSOCKS5}
 
 // modeHelp explains the modes, by their index.
-var modeHelp = []string{
-	modeAll:  "所有应用的流量都走代理，包括不认系统代理的应用",
-	modeApps: "只有在「应用列表」里勾选的应用（连同它的辅助进程）走代理，其余直连",
+var modeHelp = []func() string{
+	modeAll:  locales.ModeAllHelp,
+	modeApps: locales.ModeAppsHelp,
 }

@@ -6,5 +6,9 @@
   "updates": {
     "publicKey": "dnBkUeDCMRgHo4jAog0XSafIUrUNLEaw0btcfrpFQZA=",
     "github": "Binaryify/proxy-bridge"
+  },
+  "i18n": {
+    "dir": "locales",
+    "source": "en"
   }
 }
