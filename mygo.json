@@ -1,0 +1,6 @@
+{
+  "name": "Proxy Bridge",
+  "identifier": "com.binaryify.proxybridge",
+  "version": "0.1.0",
+  "out": "build"
+}
