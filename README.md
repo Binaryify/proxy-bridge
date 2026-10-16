@@ -66,3 +66,9 @@ internal/upstream   解析代理地址
 ```
 
 UI 状态只在主线程改；后台任务（等密码、启动 TUN、辅助进程的事件）通过 `app.post` 送回主线程。系统相关操作都在 `system` / `session` 接口后面，测试用假实现替换；`internal/tun` 的测试在测试进程里跑真实的服务和会话协议（临时 socket、假引擎），覆盖安装、版本不符重装、对端核验、取消密码等情况，检查 root 脚本语法、launchd plist 和 AppleScript，并让 sing-box 真实加载每种配置（只差需要 root 的建网卡一步）。
+
+## 许可证
+
+[GPL-3.0](LICENSE)。代理桥内置了 [sing-box](https://github.com/SagerNet/sing-box)（GPL-3.0），所以整个程序以 GPL-3.0 发布，分发编译好的程序时须一并提供源码。
+
+界面风格与面板结构来自 [MonitorBar](https://github.com/dcchanInSz/MonitorBar)；UI 框架为 [mygo](https://github.com/egoist/mygo)（MIT）。
